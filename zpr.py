@@ -1,4 +1,4 @@
-#!flask/bin/python
+#!bin/python
 import json
 import lib_zpr
 
