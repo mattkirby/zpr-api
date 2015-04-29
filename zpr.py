@@ -29,4 +29,4 @@ def check_offsite_job(backup_host):
     return json.dumps(str(lib_zpr.check_duplicity_out[0]))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='127.0.0.1')
