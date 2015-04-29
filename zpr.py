@@ -17,7 +17,8 @@ handler = logging.handlers.RotatingFileHandler(
     maxBytes=1024 * 1024 * 100,
     backupCount=20
     )
-
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.DEBUG)
 app.logger.addHandler(handler)
 
 api_version = 'v1.0'
