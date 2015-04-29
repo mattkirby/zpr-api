@@ -8,8 +8,9 @@ for the output of tsp, which tracks rsync backup jobs.
 
 import pynagios
 import re
+from distutils.spawn import find_executable
 
-from pynagios import Plugin, Response, make_option
+from pynagios import Response
 
 
 check_tsp_output = []
@@ -74,33 +75,38 @@ def check_duplicity_job(
         jobname,
         print_output=True
     ):
-    if check_tsp_output:
-        del check_tsp_output[0]
-    if check_duplicity_out:
-        del check_duplicity_out[0]
-    check_tsp_out(jobname)
-    if len(check_tsp_output) > 0:
-        global check_duplicity_out
-        split_out = check_tsp_output[0].split()
-        finished = split_out[1]
-        exit_code = split_out[3]
-        if finished == 'finished':
-            if exit_code == '0':
-                check_duplicity_out.append(
-                    'Duplicity job {j} completed successfully'.format(j=jobname))
+    if find_executable('duplicity', path='/usr/bin'):
+        if check_tsp_output:
+            del check_tsp_output[0]
+        if check_duplicity_out:
+            del check_duplicity_out[0]
+        check_tsp_out(jobname)
+        if len(check_tsp_output) > 0:
+            global check_duplicity_out
+            split_out = check_tsp_output[0].split()
+            finished = split_out[1]
+            exit_code = split_out[3]
+            if finished == 'finished':
+                if exit_code == '0':
+                    check_duplicity_out.append(
+                        'Duplicity job {j} completed successfully'.format(j=jobname))
+                else:
+                    check_duplicity_out.append(
+                        'Most recent job for {j} failed with code {e}'.format(
+                            j=jobname, e=exit_code))
             else:
                 check_duplicity_out.append(
-                    'Most recent job for {j} failed with code {e}'.format(
-                        j=jobname, e=exit_code))
+                    'Duplicity job {j} is queued or running'.format(j=jobname))
         else:
             check_duplicity_out.append(
-                'Duplicity job {j} is queued or running'.format(j=jobname))
+                'Duplicity job {j} is not found'.format(j=jobname))
     else:
         check_duplicity_out.append(
-            'Duplicity job {j} is not found'.format(j=jobname))
+            'Duplicity is not configured for the specified endpoint')
     if print_output:
         if len(check_duplicity_out) > 0:
             print(check_duplicity_out[0])
+
 
 if __name__ == "__main__":
     # Instantiate the plugin, check it, and then exit
