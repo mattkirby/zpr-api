@@ -1,25 +1,25 @@
 #!bin/python
 import json
 import lib_zpr
-import logging
-from logging.handlers import RotatingFileHandler
+#import logging
+#from logging.handlers import RotatingFileHandler
 
 from flask import Flask, jsonify, make_response
 
 
 app = Flask(__name__)
 
-app.logger.setLevel(logging.INFO)
-app.logger.disabled = False
-handler = logging.handlers.RotatingFileHandler(
-    '/var/log/zpr_flask.log',
-    'a',
-    maxBytes=1024 * 1024 * 100,
-    backupCount=20
-    )
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.DEBUG)
-app.logger.addHandler(handler)
+# app.logger.setLevel(logging.INFO)
+# app.logger.disabled = False
+# handler = logging.handlers.RotatingFileHandler(
+#     '/var/log/zpr_flask.log',
+#     'a',
+#     maxBytes=1024 * 1024 * 100,
+#     backupCount=20
+#     )
+# log = logging.getLogger('werkzeug')
+# log.setLevel(logging.DEBUG)
+# app.logger.addHandler(handler)
 
 api_version = 'v1.0'
 api_base = str('/zpr/{v}'.format(v=api_version))
@@ -43,7 +43,7 @@ def check_offsite_job(backup_host):
     return json.dumps(str(lib_zpr.check_duplicity_out[0]))
 
 if __name__ == '__main__':
-    formatter = logging.Formatter(\
-        "%(asctime)s - %(levelname)s - %(name)s: \t%(messages)s")
-    handler.setFormatter(formatter)
+#   formatter = logging.Formatter(\
+#       "%(asctime)s - %(levelname)s - %(name)s: \t%(messages)s")
+#   handler.setFormatter(formatter)
     app.run(host='127.0.0.1')
