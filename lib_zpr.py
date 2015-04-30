@@ -80,13 +80,13 @@ def check_tsp_job(
         print_output=False
     ):
     if find_executable(executable, path=exec_path):
+        global check_tsp_job_out
         if check_tsp_output:
             del check_tsp_output[0]
         if check_tsp_job_out:
             del check_tsp_job_out[0]
         check_tsp_out(jobname)
         if len(check_tsp_output) > 0:
-            global check_tsp_job_out
             split_out = check_tsp_output[0].split()
             finished = split_out[1]
             exit_code = split_out[3]
