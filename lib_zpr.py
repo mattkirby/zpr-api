@@ -8,6 +8,7 @@ for the output of tsp, which tracks rsync backup jobs.
 
 import pynagios
 import re
+import json
 from distutils.spawn import find_executable
 
 from pynagios import Response
@@ -75,7 +76,8 @@ def check_tsp_job(
         jobname,
         executable='rsync',
         exec_path='/usr/bin',
-        print_output=True
+        return_json=True,
+        print_output=False
     ):
     if find_executable(executable, path=exec_path):
         if check_tsp_output:
@@ -105,10 +107,12 @@ def check_tsp_job(
     else:
         check_tsp_job_out.append(
             '{x} is not configured for the specified endpoint'.format(x=executable))
-
     if print_output:
         if len(check_tsp_job_out) > 0:
-            print(check_tsp_job_out[0])
+            print check_tsp_job_out[0]
+    if return_json:
+        if len(check_tsp_job_out) > 0:
+            return json.dumps(str(check_tsp_job_out[0]))
 
 if __name__ == "__main__":
     # Instantiate the plugin, check it, and then exit
