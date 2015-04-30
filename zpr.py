@@ -32,10 +32,10 @@ def not_found(error):
 # def ls_test():
 #     return json.dumps(call('ls'))
 
-@app.route('{a}/job/rsync/<backup_host>'.format(a=api_base), methods=['GET'])
-def check_job(backup_host):
-    job = str(lib_zpr.check_zpr_rsync_job(backup_host))
-    return json.dumps(job)
+# @app.route('{a}/job/rsync/<backup_host>'.format(a=api_base), methods=['GET'])
+# def check_job(backup_host):
+#     job = str(lib_zpr.check_zpr_rsync_job(backup_host))
+#     return json.dumps(job)
 
 @app.route('{a}/job/rsync/<backup_host>'.format(a=api_base), methods=['GET'])
 def check_rsync_job(backup_host):
