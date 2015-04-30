@@ -46,4 +46,4 @@ if __name__ == '__main__':
 #   formatter = logging.Formatter(\
 #       "%(asctime)s - %(levelname)s - %(name)s: \t%(messages)s")
 #   handler.setFormatter(formatter)
-    app.run(host='127.0.0.1')
+    app.run(host='127.0.0.1', extra_files='/var/lib/zpr/api/lib_zpr.py')

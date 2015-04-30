@@ -107,7 +107,6 @@ def check_duplicity_job(
         if len(check_duplicity_out) > 0:
             print(check_duplicity_out[0])
 
-
 if __name__ == "__main__":
     # Instantiate the plugin, check it, and then exit
     check_zpr_rsync_job(__name__)
