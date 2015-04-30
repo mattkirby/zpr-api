@@ -39,8 +39,11 @@ def check_job(backup_host):
 
 @app.route('{a}/job/duplicity/<backup_host>'.format(a=api_base), methods=['GET'])
 def check_offsite_job(backup_host):
-    lib_zpr.check_duplicity_job(backup_host, print_output=False)
-    return json.dumps(str(lib_zpr.check_duplicity_out[0]))
+    lib_zpr.check_tsp_job(
+        executable='duplicity',
+        jobname=backup_host,
+        print_output=False)
+    return json.dumps(str(lib_zpr.check_tsp_job_out[0]))
 
 if __name__ == '__main__':
 #   formatter = logging.Formatter(\

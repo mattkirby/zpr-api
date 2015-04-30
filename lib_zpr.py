@@ -14,7 +14,7 @@ from pynagios import Response
 
 
 check_tsp_output = []
-check_duplicity_out = []
+check_tsp_job_out = []
 
 def check_zpr_rsync_job(backup_host):
     tspfile = '/var/lib/zpr/zpr_proxy_tsp.out'
@@ -71,41 +71,44 @@ def check_tsp_out(
         global check_tsp_output
         check_tsp_output.append(str(check_host[0]))
 
-def check_duplicity_job(
+def check_tsp_job(
         jobname,
+        executable='rsync',
+        exec_path='/usr/bin',
         print_output=True
     ):
-    if find_executable('duplicity', path='/usr/bin'):
+    if find_executable(executable, path=exec_path):
         if check_tsp_output:
             del check_tsp_output[0]
-        if check_duplicity_out:
-            del check_duplicity_out[0]
+        if check_tsp_job_out:
+            del check_tsp_job_out[0]
         check_tsp_out(jobname)
         if len(check_tsp_output) > 0:
-            global check_duplicity_out
+            global check_tsp_job_out
             split_out = check_tsp_output[0].split()
             finished = split_out[1]
             exit_code = split_out[3]
             if finished == 'finished':
                 if exit_code == '0':
-                    check_duplicity_out.append(
-                        'Duplicity job {j} completed successfully'.format(j=jobname))
+                    check_tsp_job_out.append(
+                        '{x} job {j} completed successfully'.format(x=executable, j=jobname))
                 else:
-                    check_duplicity_out.append(
-                        'Most recent job for {j} failed with code {e}'.format(
-                            j=jobname, e=exit_code))
+                    check_tsp_job_out.append(
+                        '{x} job for {j} failed with code {e}'.format(
+                            x=executable, j=jobname, e=exit_code))
             else:
-                check_duplicity_out.append(
-                    'Duplicity job {j} is queued or running'.format(j=jobname))
+                check_tsp_job_out.append(
+                    '{x} job {j} is queued or running'.format(x=executable, j=jobname))
         else:
-            check_duplicity_out.append(
-                'Duplicity job {j} is not found'.format(j=jobname))
+            check_tsp_job_out.append(
+                '{x} job {j} is not found'.format(x=executable, j=jobname))
     else:
-        check_duplicity_out.append(
-            'Duplicity is not configured for the specified endpoint')
+        check_tsp_job_out.append(
+            '{x} is not configured for the specified endpoint'.format(x=executable))
+
     if print_output:
-        if len(check_duplicity_out) > 0:
-            print(check_duplicity_out[0])
+        if len(check_tsp_job_out) > 0:
+            print(check_tsp_job_out[0])
 
 if __name__ == "__main__":
     # Instantiate the plugin, check it, and then exit
