@@ -44,6 +44,7 @@ def check_rsync_job(backup_host):
         executable='rsync',
         jobname=backup_host
         )
+    return json.dumps(str(lib_zpr.check_tsp_job_out[0]))
 
 @app.route('{a}/job/duplicity/<backup_host>'.format(a=api_base), methods=['GET'])
 def check_offsite_job(backup_host):
@@ -51,6 +52,7 @@ def check_offsite_job(backup_host):
         executable='duplicity',
         jobname=backup_host
         )
+    return json.dumps(str(lib_zpr.check_tsp_job_out[0]))
 
 if __name__ == '__main__':
 #   formatter = logging.Formatter(\
