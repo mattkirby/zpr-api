@@ -65,10 +65,11 @@ def check_tsp_out(
     for i in open(tspfile):
         tspout.append(i.strip())
     for i in reversed(tspout):
-        if re.compile('{h}$'.format(h=host)).findall(str(i).split()[-1]):
+        name = str(i).split()[-1].split('/')[-1]
+        if re.compile('^{h}$'.format(h=host)).findall(name):
             check_host.append(i)
             break
-    if check_host:
+    if len(check_host) > 0:
         global check_tsp_output
         check_tsp_output.append(str(check_host[0]))
 
