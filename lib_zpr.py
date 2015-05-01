@@ -90,9 +90,9 @@ def check_tsp_job(
         exit_code = split_out[3]
         for i in split_out:
             if re.compile('/usr/bin/duplicity').findall(i):
-                executable.append(str('duplicity'))
+                executable = 'duplicity'
             elif re.compile('/usr/bin/rsync').findall(i):
-                executable.append(str('rsync'))
+                executable = 'rsync'
             else:
                 exit(1)
         if finished == 'finished':
@@ -108,7 +108,7 @@ def check_tsp_job(
                 '{x} job {j} is queued or running'.format(x=executable[0], j=jobname))
     else:
         check_tsp_job_out.append(
-            '{x} job {j} is not found'.format(x=executable[0], j=jobname))
+            'job {j} is not found'.format(j=jobname))
     if print_output:
         if len(check_tsp_job_out) > 0:
             print check_tsp_job_out[0]
