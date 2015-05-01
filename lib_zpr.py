@@ -83,31 +83,32 @@ def check_tsp_job(
     if check_tsp_job_out:
         del check_tsp_job_out[0]
     check_tsp_out(jobname)
+    executable = []
     if len(check_tsp_output) > 0:
         split_out = check_tsp_output[0].split()
         finished = split_out[1]
         exit_code = split_out[3]
         for i in split_out:
             if re.compile('/usr/bin/duplicity').findall(i):
-                executable = 'duplicity'
+                executable.append('duplicity')
             elif re.compile('/usr/bin/rsync').findall(i):
-                executable = 'rsync'
+                executable.append('rsync')
             else:
                 exit(1)
         if finished == 'finished':
             if exit_code == '0':
                 check_tsp_job_out.append(
-                    '{x} job {j} completed successfully'.format(x=executable, j=jobname))
+                    '{x} job {j} completed successfully'.format(x=executable[0], j=jobname))
             else:
                 check_tsp_job_out.append(
                     '{x} job for {j} failed with code {e}'.format(
-                        x=executable, j=jobname, e=exit_code))
+                        x=executable[0], j=jobname, e=exit_code))
         else:
             check_tsp_job_out.append(
-                '{x} job {j} is queued or running'.format(x=executable, j=jobname))
+                '{x} job {j} is queued or running'.format(x=executable[0], j=jobname))
     else:
         check_tsp_job_out.append(
-            '{x} job {j} is not found'.format(x=executable, j=jobname))
+            '{x} job {j} is not found'.format(x=executable[0], j=jobname))
     if print_output:
         if len(check_tsp_job_out) > 0:
             print check_tsp_job_out[0]
