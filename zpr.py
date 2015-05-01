@@ -23,7 +23,6 @@ app = Flask(__name__)
 
 api_version = 'v1.0'
 api_base = str('/zpr/{v}'.format(v=api_version))
-extra_files = [ '/var/lib/zpr/api/lib_zpr.py', '/var/lib/zpr/api/zpr.py' ]
 
 @app.errorhandler(404)
 def not_found(error):
@@ -58,4 +57,4 @@ if __name__ == '__main__':
 #   formatter = logging.Formatter(\
 #       "%(asctime)s - %(levelname)s - %(name)s: \t%(messages)s")
 #   handler.setFormatter(formatter)
-    app.run(host='127.0.0.1', extra_files=':'.join(extra_files))
+    app.run(debug=True, host='127.0.0.1', extra_files='/var/lib/zpr/api/lib_zpr.py')
