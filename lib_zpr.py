@@ -88,13 +88,12 @@ def check_tsp_job(
         split_out = check_tsp_output[0].split()
         finished = split_out[1]
         exit_code = split_out[3]
-        for i in split_out:
-            if re.compile('/usr/bin/duplicity').findall(i):
-                executable = 'duplicity'
-            elif re.compile('/usr/bin/rsync').findall(i):
-                executable = 'rsync'
-            else:
-                exit(1)
+        if re.compile('/usr/bin/duplicity').findall(check_tsp_output[0]):
+            executable = 'duplicity'
+        elif re.compile('/usr/bin/rsync').findall(check_tsp_output[0]):
+            executable = 'rsync'
+        else:
+            exit(1)
         if finished == 'finished':
             if exit_code == '0':
                 check_tsp_job_out.append(
