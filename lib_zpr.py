@@ -8,7 +8,6 @@ for the output of tsp, which tracks rsync backup jobs.
 
 import pynagios
 import re
-from distutils.spawn import find_executable
 
 from pynagios import Response
 
@@ -88,12 +87,13 @@ def check_tsp_job(
         split_out = check_tsp_output[0].split()
         finished = split_out[1]
         exit_code = split_out[3]
-        if '/usr/bin/duplicity' in split_out:
-            executable = 'duplicity'
-        elif '/usr/bin/rsync' in split_out:
-            executable = 'rsync'
-        else:
-            exit(1)
+        for i in split_out:
+            if re.compile('/usr/bin/duplicity').findall(i):
+                executable = 'duplicity'
+            elif re.compile('/usr/bin/rsync').findall(i):
+                executable = 'rsync'
+            else:
+                exit(1)
         if finished == 'finished':
             if exit_code == '0':
                 check_tsp_job_out.append(

@@ -38,7 +38,7 @@ def not_found(error):
 #     return json.dumps(job)
 
 @app.route('{a}/job/<backup_host>'.format(a=api_base), methods=['GET'])
-def check_rsync_job(backup_host):
+def check_zpr_job(backup_host):
     lib_zpr.check_tsp_job(jobname=backup_host)
     return json.dumps(str(lib_zpr.check_tsp_job_out[0]))
 
