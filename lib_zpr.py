@@ -8,7 +8,6 @@ for the output of tsp, which tracks rsync backup jobs.
 
 import pynagios
 import re
-import json
 from distutils.spawn import find_executable
 
 from pynagios import Response
@@ -71,42 +70,44 @@ def check_tsp_out(
             break
     if len(check_host) > 0:
         global check_tsp_output
+        if check_tsp_output:
+            del check_tsp_output[0]
         check_tsp_output.append(str(check_host[0]))
 
 def check_tsp_job(
         jobname,
-        executable='rsync',
-        exec_path='/usr/bin',
         print_output=False
     ):
-    if find_executable(executable, path=exec_path):
-        global check_tsp_job_out
-        if check_tsp_output:
-            del check_tsp_output[0]
-        if check_tsp_job_out:
-            del check_tsp_job_out[0]
-        check_tsp_out(jobname)
-        if len(check_tsp_output) > 0:
-            split_out = check_tsp_output[0].split()
-            finished = split_out[1]
-            exit_code = split_out[3]
-            if finished == 'finished':
-                if exit_code == '0':
-                    check_tsp_job_out.append(
-                        '{x} job {j} completed successfully'.format(x=executable, j=jobname))
-                else:
-                    check_tsp_job_out.append(
-                        '{x} job for {j} failed with code {e}'.format(
-                            x=executable, j=jobname, e=exit_code))
+    global check_tsp_job_out
+    if check_tsp_output:
+        del check_tsp_output[0]
+    if check_tsp_job_out:
+        del check_tsp_job_out[0]
+    check_tsp_out(jobname)
+    if len(check_tsp_output) > 0:
+        split_out = check_tsp_output[0].split()
+        finished = split_out[1]
+        exit_code = split_out[3]
+        if '/usr/bin/duplicity' in split_out:
+            executable = 'duplicity'
+        elif '/usr/bin/rsync' in split_out:
+            executable = 'rsync'
+        else:
+            exit(1)
+        if finished == 'finished':
+            if exit_code == '0':
+                check_tsp_job_out.append(
+                    '{x} job {j} completed successfully'.format(x=executable, j=jobname))
             else:
                 check_tsp_job_out.append(
-                    '{x} job {j} is queued or running'.format(x=executable, j=jobname))
+                    '{x} job for {j} failed with code {e}'.format(
+                        x=executable, j=jobname, e=exit_code))
         else:
             check_tsp_job_out.append(
-                '{x} job {j} is not found'.format(x=executable, j=jobname))
+                '{x} job {j} is queued or running'.format(x=executable, j=jobname))
     else:
         check_tsp_job_out.append(
-            '{x} is not configured for the specified endpoint'.format(x=executable))
+            '{x} job {j} is not found'.format(x=executable, j=jobname))
     if print_output:
         if len(check_tsp_job_out) > 0:
             print check_tsp_job_out[0]

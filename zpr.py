@@ -37,24 +37,13 @@ def not_found(error):
 #     job = str(lib_zpr.check_zpr_rsync_job(backup_host))
 #     return json.dumps(job)
 
-@app.route('{a}/job/rsync/<backup_host>'.format(a=api_base), methods=['GET'])
+@app.route('{a}/job/<backup_host>'.format(a=api_base), methods=['GET'])
 def check_rsync_job(backup_host):
-    lib_zpr.check_tsp_job(
-        executable='rsync',
-        jobname=backup_host
-        )
-    return json.dumps(str(lib_zpr.check_tsp_job_out[0]))
-
-@app.route('{a}/job/duplicity/<backup_host>'.format(a=api_base), methods=['GET'])
-def check_offsite_job(backup_host):
-    lib_zpr.check_tsp_job(
-        executable='duplicity',
-        jobname=backup_host
-        )
+    lib_zpr.check_tsp_job(jobname=backup_host)
     return json.dumps(str(lib_zpr.check_tsp_job_out[0]))
 
 if __name__ == '__main__':
 #   formatter = logging.Formatter(\
 #       "%(asctime)s - %(levelname)s - %(name)s: \t%(messages)s")
 #   handler.setFormatter(formatter)
-    app.run(debug=True, host='127.0.0.1', extra_files='/var/lib/zpr/api/lib_zpr.py')
+    app.run(debug=True, extra_files='/var/lib/zpr/api/lib_zpr.py')
