@@ -97,14 +97,14 @@ def check_tsp_job(
         if finished == 'finished':
             if exit_code == '0':
                 check_tsp_job_out.append(
-                    '{x} job {j} completed successfully'.format(x=executable[0], j=jobname))
+                    '{x} job {j} completed successfully'.format(x=executable, j=jobname))
             else:
                 check_tsp_job_out.append(
                     '{x} job for {j} failed with code {e}'.format(
-                        x=executable[0], j=jobname, e=exit_code))
+                        x=executable, j=jobname, e=exit_code))
         else:
             check_tsp_job_out.append(
-                '{x} job {j} is queued or running'.format(x=executable[0], j=jobname))
+                '{x} job {j} is queued or running'.format(x=executable, j=jobname))
     else:
         check_tsp_job_out.append(
             'job {j} is not found'.format(j=jobname))
