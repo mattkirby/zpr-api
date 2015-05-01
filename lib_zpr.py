@@ -90,9 +90,9 @@ def check_tsp_job(
         exit_code = split_out[3]
         for i in split_out:
             if re.compile('/usr/bin/duplicity').findall(i):
-                executable.append('duplicity')
+                executable.append(str('duplicity'))
             elif re.compile('/usr/bin/rsync').findall(i):
-                executable.append('rsync')
+                executable.append(str('rsync'))
             else:
                 exit(1)
         if finished == 'finished':
