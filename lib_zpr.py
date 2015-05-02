@@ -8,6 +8,8 @@ for the output of tsp, which tracks rsync backup jobs.
 
 import pynagios
 import re
+import os
+import datetime
 
 from pynagios import Response
 
@@ -87,6 +89,8 @@ def check_tsp_job(
     if len(check_tsp_output) > 0:
         split_out = check_tsp_output[0].split()
         finished = split_out[1]
+        tmp_file_mtime = os.path.getmtime(split_out[2])
+        mtime = datetime.datetime.fromtimestamp(tmp_file_mtime).strftime('%Y-%m-%d %H:%M:%S')
         exit_code = split_out[3]
         if re.compile('/usr/bin/duplicity').findall(check_tsp_output[0]):
             executable = 'duplicity'
@@ -97,11 +101,12 @@ def check_tsp_job(
         if finished == 'finished':
             if exit_code == '0':
                 check_tsp_job_out.append(
-                    '{x} job {j} completed successfully'.format(x=executable, j=jobname))
+                    '{x} job {j} completed successfully at {m}'.format(
+                        x=executable, j=jobname, m=mtime))
             else:
                 check_tsp_job_out.append(
-                    '{x} job for {j} failed with code {e}'.format(
-                        x=executable, j=jobname, e=exit_code))
+                    '{x} job for {j} failed with code {e} at {m}'.format(
+                        x=executable, j=jobname, e=exit_code, m=mtime))
         else:
             check_tsp_job_out.append(
                 '{x} job {j} is queued or running'.format(x=executable, j=jobname))
