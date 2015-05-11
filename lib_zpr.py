@@ -64,7 +64,7 @@ def check_tsp_out(
     tspout = []
     check_host = []
     for i in check_output('tsp').split('\n'):
-        tspout.append(i))
+        tspout.append(i)
     for i in reversed(tspout):
         name = i.split()[-1].split('/')[-1]
         if re.compile('^{h}$'.format(h=host)).findall(name):
