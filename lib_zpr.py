@@ -76,45 +76,47 @@ def check_tsp_out(
     if len(check_host) > 0:
         global check_tsp_output
         if check_tsp_output:
-            del check_tsp_output[0]
+            del check_tsp_output[0:]
         for i in check_host:
             check_tsp_output.append(str(i))
 
 def check_tsp_job(
         jobname,
+        check=1,
         print_output=False
     ):
     global check_tsp_job_out
     if check_tsp_output:
-        del check_tsp_output[0]
+        del check_tsp_output[0:]
     if check_tsp_job_out:
-        del check_tsp_job_out[0]
-    check_tsp_out(jobname)
+        del check_tsp_job_out[0:]
+    check_tsp_out(jobname, check)
     executable = []
     if len(check_tsp_output) > 0:
-        split_out = check_tsp_output[0].split()
-        finished = split_out[1]
-        tmp_file_mtime = os.path.getmtime(split_out[2])
-        mtime = datetime.datetime.fromtimestamp(tmp_file_mtime).strftime('%Y-%m-%d %H:%M:%S')
-        exit_code = split_out[3]
-        if re.compile('/usr/bin/duplicity').findall(check_tsp_output[0]):
-            executable = 'duplicity'
-        elif re.compile('/usr/bin/rsync').findall(check_tsp_output[0]):
-            executable = 'rsync'
-        else:
-            exit(1)
-        if finished == 'finished':
-            if exit_code == '0':
-                check_tsp_job_out.append(
-                    '{x} job {j} completed successfully at {m}'.format(
-                        x=executable, j=jobname, m=mtime))
+        for i in check_tsp_output:
+            split_out = i.split()
+            finished = split_out[1]
+            tmp_file_mtime = os.path.getmtime(split_out[2])
+            mtime = datetime.datetime.fromtimestamp(tmp_file_mtime).strftime('%Y-%m-%d %H:%M:%S')
+            exit_code = split_out[3]
+            if re.compile('/usr/bin/duplicity').findall(check_tsp_output[0]):
+                executable = 'duplicity'
+            elif re.compile('/usr/bin/rsync').findall(check_tsp_output[0]):
+                executable = 'rsync'
+            else:
+                exit(1)
+            if finished == 'finished':
+                if exit_code == '0':
+                    check_tsp_job_out.append(
+                        '{x} job {j} completed successfully at {m}'.format(
+                            x=executable, j=jobname, m=mtime))
+                else:
+                    check_tsp_job_out.append(
+                        '{x} job for {j} failed with code {e} at {m}'.format(
+                            x=executable, j=jobname, e=exit_code, m=mtime))
             else:
                 check_tsp_job_out.append(
-                    '{x} job for {j} failed with code {e} at {m}'.format(
-                        x=executable, j=jobname, e=exit_code, m=mtime))
-        else:
-            check_tsp_job_out.append(
-                '{x} job {j} is queued or running'.format(x=executable, j=jobname))
+                    '{x} job {j} is queued or running'.format(x=executable, j=jobname))
     else:
         check_tsp_job_out.append(
             'job {j} is not found'.format(j=jobname))
