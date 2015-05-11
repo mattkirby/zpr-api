@@ -122,7 +122,8 @@ def check_tsp_job(
             'job {j} is not found'.format(j=jobname))
     if print_output:
         if len(check_tsp_job_out) > 0:
-            print check_tsp_job_out[0]
+            for i in check_tsp_job_out:
+                print i
 
 if __name__ == "__main__":
     # Instantiate the plugin, check it, and then exit
