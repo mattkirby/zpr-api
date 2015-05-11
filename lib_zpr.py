@@ -11,6 +11,7 @@ import re
 import os
 import datetime
 
+from subprocess import check_output
 from pynagios import Response
 
 
@@ -58,22 +59,25 @@ def check_zpr_rsync_job(backup_host):
 
 def check_tsp_out(
         host,
-        tspfile = '/var/lib/zpr/zpr_proxy_tsp.out'
+        check=1
     ):
     tspout = []
     check_host = []
-    for i in open(tspfile):
+    for i in check_output('tsp').split('\n'):
         tspout.append(i.strip())
     for i in reversed(tspout):
         name = str(i).split()[-1].split('/')[-1]
         if re.compile('^{h}$'.format(h=host)).findall(name):
-            check_host.append(i)
-            break
+            if check > len(check_host):
+                check_host.append(i)
+            else:
+                break
     if len(check_host) > 0:
         global check_tsp_output
         if check_tsp_output:
             del check_tsp_output[0]
-        check_tsp_output.append(str(check_host[0]))
+        for i in check_host:
+            check_tsp_output.append(str(i))
 
 def check_tsp_job(
         jobname,
