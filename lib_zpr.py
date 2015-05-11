@@ -66,12 +66,13 @@ def check_tsp_out(
     for i in check_output('tsp').split('\n'):
         tspout.append(i)
     for i in reversed(tspout):
-        name = i.split()[-1].split('/')[-1]
-        if re.compile('^{h}$'.format(h=host)).findall(name):
-            if check > len(check_host):
-                check_host.append(i)
-            else:
-                break
+        if i != '':
+            name = i.split()[-1].split('/')[-1]
+            if re.compile('^{h}$'.format(h=host)).findall(name):
+                if check > len(check_host):
+                    check_host.append(i)
+                else:
+                    break
     if len(check_host) > 0:
         global check_tsp_output
         if check_tsp_output:
