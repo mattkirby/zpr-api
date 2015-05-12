@@ -17,6 +17,7 @@ from pynagios import Response
 
 check_tsp_output = []
 check_tsp_job_out = []
+check_job_changes = []
 
 def check_zpr_rsync_job(backup_host):
     tspfile = '/var/lib/zpr/zpr_proxy_tsp.out'
@@ -83,13 +84,17 @@ def check_tsp_out(
 def check_tsp_job(
         jobname,
         check=1,
-        print_output=False
+        print_output=False,
+        show_changes=False
     ):
     global check_tsp_job_out
+    global show_job_changes
     if check_tsp_output:
         del check_tsp_output[0:]
     if check_tsp_job_out:
         del check_tsp_job_out[0:]
+    if show_changes:
+        del check_job_changes[0:]
     check_tsp_out(jobname, check)
     executable = []
     if len(check_tsp_output) > 0:
@@ -106,6 +111,12 @@ def check_tsp_job(
             else:
                 exit(1)
             if finished == 'finished':
+                if check_job_changes:
+                    changes = []
+                    for i in open(split_out[2]):
+                        changes.append(i.strip())
+                    if changes:
+                        check_job_changes.append(changes)
                 if exit_code == '0':
                     check_tsp_job_out.append(
                         '{x} job {j} completed successfully at {m}'.format(
@@ -123,7 +134,9 @@ def check_tsp_job(
     if print_output:
         if len(check_tsp_job_out) > 0:
             for i in check_tsp_job_out:
-                print i
+                print(i)
+                if show_changes:
+                    print(check_job_changes[check_tsp_job_out.index(i)])
 
 if __name__ == "__main__":
     # Instantiate the plugin, check it, and then exit
