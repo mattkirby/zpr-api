@@ -88,7 +88,7 @@ def check_tsp_job(
         show_changes=False
     ):
     global check_tsp_job_out
-    global show_job_changes
+    global check_job_changes
     if check_tsp_output:
         del check_tsp_output[0:]
     if check_tsp_job_out:
