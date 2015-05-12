@@ -42,6 +42,11 @@ def check_zpr_job(backup_host):
     lib_zpr.check_tsp_job(jobname=backup_host)
     return json.dumps(str(lib_zpr.check_tsp_job_out[0]))
 
+@app.route('{a}/job/<backup_host>/output'.format(a=api_base), methods=['GET'])
+def check_zpr_job_summary(backup_host):
+    lib_zpr.check_tsp_job(backup_host, show_changes=True)
+    return json.dumps(str(lib_zpr.check_tsp_job_out[0]))
+
 if __name__ == '__main__':
 #   formatter = logging.Formatter(\
 #       "%(asctime)s - %(levelname)s - %(name)s: \t%(messages)s")
