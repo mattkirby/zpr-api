@@ -111,7 +111,7 @@ def check_tsp_job(
             else:
                 exit(1)
             if finished == 'finished':
-                if check_job_changes:
+                if show_changes:
                     changes = []
                     for i in open(split_out[2]):
                         changes.append(i.strip())
