@@ -51,7 +51,7 @@ def check_zpr_job_summary(backup_host):
         ]
     join_summary = '\n'.join(summary)
 
-    return json.dumps(join_summary)
+    return json.dumps(join_summary, indent=2)
 
 if __name__ == '__main__':
 #   formatter = logging.Formatter(\
