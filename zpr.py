@@ -47,9 +47,9 @@ def check_zpr_job_summary(backup_host):
     lib_zpr.check_tsp_job(backup_host, show_changes=True)
     summary = [
         str(lib_zpr.check_tsp_job_out[0]),
-        '\n'.join(lib_zpr.check_job_changes[0])
+        ' '.join(lib_zpr.check_job_changes[0])
         ]
-    join_summary = '\n'.join(summary)
+    join_summary = ' '.join(summary)
 
     return json.dumps(join_summary, indent=2)
 
