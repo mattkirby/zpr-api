@@ -78,7 +78,7 @@ def check_tsp_out(
         if check_tsp_output:
             del check_tsp_output[0:]
         for i in check_host:
-            check_tsp_output.append(str(i))
+            check_tsp_output.append(i)
 
 def check_tsp_job(
         jobname,
