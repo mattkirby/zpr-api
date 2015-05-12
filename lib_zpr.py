@@ -137,7 +137,7 @@ def check_tsp_job(
                 print(i)
                 if show_changes:
                     if len(check_job_changes) >= check_tsp_job_out.index(i):
-                        print(check_job_changes[check_tsp_job_out.index(i)])
+                        print('\n'.join(check_job_changes[check_tsp_job_out.index(i)]))
 
 if __name__ == "__main__":
     # Instantiate the plugin, check it, and then exit
