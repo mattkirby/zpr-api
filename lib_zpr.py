@@ -136,7 +136,7 @@ def check_tsp_job(
             for i in check_tsp_job_out:
                 print(i)
                 if show_changes:
-                    if check_job_changes[check_tsp_job_out.index(i)]:
+                    if len(check_job_changes) >= check_tsp_job_out.index(i):
                         print(check_job_changes[check_tsp_job_out.index(i)])
 
 if __name__ == "__main__":
