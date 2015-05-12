@@ -50,7 +50,7 @@ def check_zpr_job_summary(backup_host):
             str(lib_zpr.check_tsp_job_out[0]),
             '\n'.join(lib_zpr.check_job_changes[0])
         ]
-    ))
+    ).replace('\n', '\\n'))
 
 if __name__ == '__main__':
 #   formatter = logging.Formatter(\
