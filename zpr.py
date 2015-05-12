@@ -1,4 +1,4 @@
-#!bin/python
+#!/var/lib/zpr/api/bin/python
 import json
 import lib_zpr
 #import logging
