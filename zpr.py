@@ -32,7 +32,7 @@ def check_last_count_zpr_job(backup_host, count):
     else:
         abort(404)
 
-@app.route('{a}/job/<backup_host>/output'.format(a=api_base), methods=['GET'])
+@app.route('{a}/job/<backup_host>/last/output'.format(a=api_base), methods=['GET'])
 def check_zpr_job_summary(backup_host):
     lib_zpr.check_tsp_job(backup_host, show_changes=True)
     if lib_zpr.json_output:
@@ -40,7 +40,7 @@ def check_zpr_job_summary(backup_host):
     else:
         abort(404)
 
-@app.route('{a}/job/<backup_host>/output/<int:count>'.format(a=api_base), methods=['GET'])
+@app.route('{a}/job/<backup_host>/last/output/<int:count>'.format(a=api_base), methods=['GET'])
 def check_zpr_job_summary_count(backup_host, count):
     lib_zpr.check_tsp_job(backup_host, count, show_changes=True)
     if lib_zpr.json_output:
