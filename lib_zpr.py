@@ -62,6 +62,7 @@ def check_tsp_out(
         host,
         check=1
     ):
+    os.environ['TMPDIR'] = '/var/lib/zpr/task_spooler'
     tspout = []
     check_host = []
     for i in check_output('tsp').split('\n'):
