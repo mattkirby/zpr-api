@@ -51,7 +51,7 @@ def check_zpr_job_summary_count(backup_host, count):
 @app.route('{a}/job/<backup_host>/last/nagios'.format(a=api_base), methods=['GET'])
 def check_zpr_job_last_nagios(backup_host):
     lib_zpr.check_zpr_rsync_nagios(backup_host)
-    return jsonify({'job_result': str(lib_zpr.json_output[0].get('nagios_return'))})
+    return jsonify({'job_result': lib_zpr.json_output})
 
 if __name__ == '__main__':
 #   formatter = logging.Formatter(\
