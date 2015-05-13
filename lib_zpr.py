@@ -156,7 +156,9 @@ def check_tsp_job(
 def check_zpr_rsync_nagios(jobname):
     check_tsp_job(jobname)
     global json_output
-    if json_output[0].get('exit_code') == '0':
+    if not json_output:
+        result = Response(pynagios.UNKNOWN, 'Cannot find job {j}'.format(j=jobname))
+    elif json_output[0].get('exit_code') == '0':
         result = Response(pynagios.OK, '{j} completed successfully'.format(j=jobname))
     else:
         result = Response(pynagios.CRITICAL, '{j} failed'.format(j=jobname))
