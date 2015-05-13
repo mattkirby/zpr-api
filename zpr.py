@@ -35,7 +35,7 @@ def check_last_zpr_job(backup_host):
 
 @app.route('{a}/job/<backup_host>/last/<int:count>'.format(a=api_base), methods=['GET'])
 def check_last_count_zpr_job(backup_host, count):
-    lib_zpr.check_tsp_job(backup_host)
+    lib_zpr.check_tsp_job(backup_host, count)
     return jsonify({'job_result': lib_zpr.json_output})
 
 @app.route('{a}/job/<backup_host>/output'.format(a=api_base), methods=['GET'])
