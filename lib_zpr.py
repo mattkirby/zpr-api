@@ -164,7 +164,7 @@ def check_zpr_rsync_nagios(jobname):
         json_output[0]['nagios_return'] = result
     else:
         result = Response(pynagios.UNKNOWN, 'Cannot find job {j}'.format(j=jobname))
-        json_output.append([{'nagios_return': result}])
+        json_output.append({'nagios_return': result})
 
 if __name__ == "__main__":
     # Instantiate the plugin, check it, and then exit
