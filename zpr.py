@@ -1,4 +1,4 @@
-#!/var/lib/zpr/api/bin/python
+#!bin/python
 import json
 import lib_zpr
 #import logging
@@ -47,12 +47,15 @@ def check_zpr_job_summary(backup_host):
     lib_zpr.check_tsp_job(backup_host, show_changes=True)
     job_checked = [
         {
-            'name': backup_host,
+            'changes': lib_zpr.check_job_changes[0],
             'response': lib_zpr.check_tsp_job_out[0],
-            'changes': lib_zpr.check_job_changes[0]
+            'name': backup_host
         }
     ]
-    return jsonify({'job_checked': job_checked})
+    if lib_zpr.check_tsp_job_out:
+        return jsonify({'job_checked': job_checked})
+    else:
+        return jsonify({'result': lib_zpr.check_job_changes[0]})
 
     #return json.dumps(join_summary, indent=2)
 
