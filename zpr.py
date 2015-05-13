@@ -9,27 +9,11 @@ from flask import Flask, jsonify, make_response, abort
 
 app = Flask(__name__)
 
-# app.logger.setLevel(logging.INFO)
-# app.logger.disabled = False
-# handler = logging.handlers.RotatingFileHandler(
-#     '/var/log/zpr_flask.log',
-#     'a',
-#     maxBytes=1024 * 1024 * 100,
-#     backupCount=20
-#     )
-# log = logging.getLogger('werkzeug')
-# log.setLevel(logging.DEBUG)
-# app.logger.addHandler(handler)
-
-
-
 api_version = 'v1.0'
 api_base = str('/zpr/{v}'.format(v=api_version))
 
 @app.errorhandler(404)
 def not_found(error):
-    error_name = error.__name__ if error else "Unknown-Error"
-    app.logger.warning('Request resulted in {e}'.format(e=error_name), exc_info=error)
     return make_response(jsonify({'error': 'Not found'}), 404)
 
 @app.route('{a}/job/<backup_host>/last'.format(a=api_base), methods=['GET'])
