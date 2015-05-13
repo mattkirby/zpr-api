@@ -119,6 +119,7 @@ def check_tsp_job(
                 executable = 'rsync'
             else:
                 exit(1)
+            job_results['job_type'] = executable
             if finished == 'finished':
                 if show_changes:
                     changes = []
@@ -151,6 +152,15 @@ def check_tsp_job(
                 if show_changes:
                     if len(check_job_changes) >= check_tsp_job_out.index(i):
                         print('\n'.join(check_job_changes[check_tsp_job_out.index(i)]))
+
+def check_zpr_rsync_nagios(jobname):
+    check_tsp_job(jobname)
+    with json_output[0].get('exit_code') as exit_code:
+        if exit_code == '0':
+            result = Response(pynagios.OK, '{j} completed successfully'.format(j=jobname))
+        else:
+            result = Response(pynagios.CRITICAL, '{j} failed'.format(j=jobname))
+    json_output[0]['nagios_return'] = result
 
 if __name__ == "__main__":
     # Instantiate the plugin, check it, and then exit

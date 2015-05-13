@@ -28,8 +28,13 @@ api_base = str('/zpr/{v}'.format(v=api_version))
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
-@app.route('{a}/job/<backup_host>'.format(a=api_base), methods=['GET'])
-def check_zpr_job(backup_host):
+@app.route('{a}/job/<backup_host>/last'.format(a=api_base), methods=['GET'])
+def check_last_zpr_job(backup_host):
+    lib_zpr.check_tsp_job(backup_host)
+    return jsonify({'job_result': lib_zpr.json_output})
+
+@app.route('{a}/job/<backup_host>/last/<int:count>'.format(a=api_base), methods=['GET'])
+def check_last_count_zpr_job(backup_host, count):
     lib_zpr.check_tsp_job(backup_host)
     return jsonify({'job_result': lib_zpr.json_output})
 
@@ -42,6 +47,11 @@ def check_zpr_job_summary(backup_host):
 def check_zpr_job_summary_count(backup_host, count):
     lib_zpr.check_tsp_job(backup_host, count, show_changes=True)
     return jsonify({'job_result': lib_zpr.json_output})
+
+@app.route('{a}/job/<backup_host>/last/nagios'.format(a=api_base), methods=['GET'])
+def check_zpr_job_last_nagios(backup_host):
+    lib_zpr.check_zpr_rsync_nagios(backup_host)
+    return jsonify({'job_result': lib_zpr.json_output[0].get('nagios_return')})
 
 if __name__ == '__main__':
 #   formatter = logging.Formatter(\
