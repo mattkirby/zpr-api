@@ -155,6 +155,7 @@ def check_tsp_job(
 
 def check_zpr_rsync_nagios(jobname):
     check_tsp_job(jobname)
+    global json_output
     with json_output[0].get('exit_code') as exit_code:
         if exit_code == '0':
             result = Response(pynagios.OK, '{j} completed successfully'.format(j=jobname))
