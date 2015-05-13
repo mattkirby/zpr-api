@@ -28,31 +28,20 @@ api_base = str('/zpr/{v}'.format(v=api_version))
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
-# @app.route('/zpr/job')
-# def ls_test():
-#     return json.dumps(call('ls'))
-
-# @app.route('{a}/job/rsync/<backup_host>'.format(a=api_base), methods=['GET'])
-# def check_job(backup_host):
-#     job = str(lib_zpr.check_zpr_rsync_job(backup_host))
-#     return json.dumps(job)
-
 @app.route('{a}/job/<backup_host>'.format(a=api_base), methods=['GET'])
 def check_zpr_job(backup_host):
     lib_zpr.check_tsp_job(backup_host)
-    return jsonify({'last result for {b}'.format(b=backup_host): lib_zpr.check_tsp_job_out[0]})
+    return jsonify({'job_result': lib_zpr.json_output})
 
 @app.route('{a}/job/<backup_host>/output'.format(a=api_base), methods=['GET'])
 def check_zpr_job_summary(backup_host):
     lib_zpr.check_tsp_job(backup_host, show_changes=True)
-    return jsonify({'job_checked': lib_zpr.json_output})
+    return jsonify({'job_result': lib_zpr.json_output})
 
 @app.route('{a}/job/<backup_host>/output/<int:count>'.format(a=api_base), methods=['GET'])
 def check_zpr_job_summary_count(backup_host, count):
     lib_zpr.check_tsp_job(backup_host, count, show_changes=True)
-    return jsonify({'job_checked': lib_zpr.json_output})
-
-    #return json.dumps(join_summary, indent=2)
+    return jsonify({'job_result': lib_zpr.json_output})
 
 if __name__ == '__main__':
 #   formatter = logging.Formatter(\
