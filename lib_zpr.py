@@ -18,6 +18,7 @@ from pynagios import Response
 check_tsp_output = []
 check_tsp_job_out = []
 check_job_changes = []
+json_output = []
 
 def check_zpr_rsync_job(backup_host):
     tspfile = '/var/lib/zpr/zpr_proxy_tsp.out'
@@ -90,21 +91,28 @@ def check_tsp_job(
     ):
     global check_tsp_job_out
     global check_job_changes
+    global json_output
     if check_tsp_output:
         del check_tsp_output[0:]
     if check_tsp_job_out:
         del check_tsp_job_out[0:]
     if show_changes:
         del check_job_changes[0:]
+    if json_output:
+        del json_output[0:]
     check_tsp_out(jobname, check)
     executable = []
     if len(check_tsp_output) > 0:
         for i in check_tsp_output:
+            job_results = {}
+            job_results['name'] = jobname
             split_out = i.split()
             finished = split_out[1]
             tmp_file_mtime = os.path.getmtime(split_out[2])
             mtime = datetime.datetime.fromtimestamp(tmp_file_mtime).strftime('%Y-%m-%d %H:%M:%S')
+            job_results['time_completed'] = mtime
             exit_code = split_out[3]
+            job_results['exit_code'] = exit_code
             if re.compile('/usr/bin/duplicity').findall(check_tsp_output[0]):
                 executable = 'duplicity'
             elif re.compile('/usr/bin/rsync').findall(check_tsp_output[0]):
@@ -118,17 +126,21 @@ def check_tsp_job(
                         changes.append(i.strip())
                     if changes:
                         check_job_changes.append(changes)
+                        job_results['output'] = changes
                 if exit_code == '0':
                     check_tsp_job_out.append(
                         '{x} job {j} completed successfully at {m}'.format(
                             x=executable, j=jobname, m=mtime))
+                    job_results['result'] = 'successful'
                 else:
                     check_tsp_job_out.append(
                         '{x} job for {j} failed with code {e} at {m}'.format(
                             x=executable, j=jobname, e=exit_code, m=mtime))
+                    job_results['result'] = 'fail'
             else:
                 check_tsp_job_out.append(
                     '{x} job {j} is queued or running'.format(x=executable, j=jobname))
+        json_output.append(job_results)
     else:
         check_tsp_job_out.append(
             'job {j} is not found'.format(j=jobname))
