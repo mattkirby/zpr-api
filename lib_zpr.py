@@ -140,7 +140,7 @@ def check_tsp_job(
             else:
                 check_tsp_job_out.append(
                     '{x} job {j} is queued or running'.format(x=executable, j=jobname))
-        json_output.append(job_results)
+            json_output.append(job_results)
     else:
         check_tsp_job_out.append(
             'job {j} is not found'.format(j=jobname))
