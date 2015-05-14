@@ -14,7 +14,6 @@ check_tsp_output = []
 check_tsp_job_out = []
 check_job_changes = []
 json_output = []
-files_list = []
 
 def check_tsp_out(
         host,
@@ -111,14 +110,16 @@ def check_tsp_job(
                         print('\n'.join(check_job_changes[check_tsp_job_out.index(i)]))
 
 def list_files(startpath):
-    global files_list
+    global json_output
+    if json_output:
+        del json_output[0:]
     for root, dirs, files in os.walk(startpath):
-        level = root.replace(startpath, '').count(os.sep)
-        indent = ' ' * 4 * (level)
-        files_list.append('{}{}/'.format(indent, os.path.basename(root)))
-        subindent = ' ' * 4 * (level + 1)
-        for f in files:
-            files_list.append('{}{}'.format(subindent, f))
+        root_list = {'directory': '{}/'.format(os.path.basename(root))}
+        file_list = []
+        for filename in files:
+            file_list.append(filename)
+        root_list['files'] = file_list
+        json_output.append(root_list)
 
 if __name__ == "__main__":
     # Instantiate the plugin, check it, and then exit
