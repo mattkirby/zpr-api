@@ -2,7 +2,6 @@
 import json
 import lib_zpr
 import logging
-from logging.handlers import RotatingFileHandler
 
 from flask import Flask, jsonify, make_response, abort
 
