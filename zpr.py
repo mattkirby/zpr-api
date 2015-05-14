@@ -48,8 +48,11 @@ def check_zpr_job_summary_count(backup_host, count):
     else:
         abort(404)
 
+@app.route('{a}/job/<backup_host>/files'.format(a=api_base), methods=['GET'])
+def check_zpr_files(backup_host):
+    lib_zpr.check_tsp_job(backup_host)
+    if lib_zpr.json_output:
+        return jsonify({'job_result': lib_zpr.json_output})
+
 if __name__ == '__main__':
-#   formatter = logging.Formatter(\
-#       "%(asctime)s - %(levelname)s - %(name)s: \t%(messages)s")
-#   handler.setFormatter(formatter)
     app.run(debug=True, extra_files='/var/lib/zpr/api/lib_zpr.py')

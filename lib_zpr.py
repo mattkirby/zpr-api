@@ -1,9 +1,6 @@
 #!/usr/bin/env python2
 """
-Check the status of zpr rsync job
-
-This check is designed to check a file printed by the zpr_proxy user
-for the output of tsp, which tracks rsync backup jobs.
+Check the status of a task spooler job
 """
 
 import re
@@ -111,6 +108,15 @@ def check_tsp_job(
                 if show_changes:
                     if len(check_job_changes) >= check_tsp_job_out.index(i):
                         print('\n'.join(check_job_changes[check_tsp_job_out.index(i)]))
+
+def list_files(startpath):
+    for root, dirs, files in os.walk(startpath):
+        level = root.replace(startpath, '').count(os.sep)
+        indent = ' ' * 4 * (level)
+        print ('{}{}/'.format(indent, os.path.basename(root)))
+        subindent = ' ' * 4 * (level + 1)
+        for f in files:
+            print('{}{}'.format(subindent, f))
 
 if __name__ == "__main__":
     # Instantiate the plugin, check it, and then exit
