@@ -33,13 +33,11 @@ def check_tsp_out(
                     if not re.compile('{}'.format(exclude)).findall(i):
                         if re.compile('^{}$'.format(host)).findall(name):
                             check_host.append(i)
-                        else:
-                            break
                 else:
                     if re.compile('^{}$'.format(host)).findall(name):
                         check_host.append(i)
-                    else:
-                        break
+            else:
+                break
     if len(check_host) > 0:
         global check_tsp_output
         if check_tsp_output:
