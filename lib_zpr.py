@@ -26,9 +26,9 @@ def check_tsp_out(
     for i in check_output('tsp').split('\n'):
         tspout.append(i)
     for i in reversed(tspout):
-        name = i.split()[-1].split('/')[-1]
         if check > len(check_host):
             if i != '':
+                name = i.split()[-1].split('/')[-1]
                 if exclude != '':
                     if not re.compile('{}'.format(exclude)).findall(i):
                         if re.compile('^{}$'.format(host)).findall(name):
