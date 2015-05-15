@@ -17,8 +17,8 @@ json_output = []
 
 def check_tsp_out(
         host,
-        exclude='remove-older-than',
         check=1,
+        exclude='remove-older-than'
     ):
     os.environ['TMPDIR'] = '/var/lib/zpr/task_spooler'
     tspout = []
