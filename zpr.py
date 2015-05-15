@@ -9,7 +9,7 @@ from flask import Flask, jsonify, make_response, abort
 app = Flask(__name__)
 
 api_version = 'v1.0'
-api_base = str('/zpr/{v}'.format(v=api_version))
+api_base = str('/zpr/{}'.format(api_version))
 
 @app.errorhandler(404)
 def not_found(error):

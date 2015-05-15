@@ -17,7 +17,8 @@ json_output = []
 
 def check_tsp_out(
         host,
-        check=1
+        exclude='remove-older-than',
+        check=1,
     ):
     os.environ['TMPDIR'] = '/var/lib/zpr/task_spooler'
     tspout = []
@@ -25,13 +26,20 @@ def check_tsp_out(
     for i in check_output('tsp').split('\n'):
         tspout.append(i)
     for i in reversed(tspout):
-        if i != '':
-            name = i.split()[-1].split('/')[-1]
-            if re.compile('^{h}$'.format(h=host)).findall(name):
-                if check > len(check_host):
-                    check_host.append(i)
+        name = i.split()[-1].split('/')[-1]
+        if check > len(check_host):
+            if i != '':
+                if exclude != '':
+                    if not re.compile('{}'.format(exclude)).findall(i):
+                        if re.compile('^{}$'.format(host)).findall(name):
+                            check_host.append(i)
+                        else:
+                            break
                 else:
-                    break
+                    if re.compile('^{}$'.format(host)).findall(name):
+                        check_host.append(i)
+                    else:
+                        break
     if len(check_host) > 0:
         global check_tsp_output
         if check_tsp_output:
