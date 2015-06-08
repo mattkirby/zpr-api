@@ -39,6 +39,59 @@ class Tsp:
                 else:
                     self.output.append(i.split())
 
+    def get_results(self):
+        """
+        Gather exit code and job file for a tsp job
+        """
+        for i in self.output:
+            results = {}
+            toremove = {}
+            index = self.output[self.output.index(i)]
+            tspfile = index[2]
+            toremove['tspid'] = index[0]
+            toremove['tspfile'] = tspfile
+            results['title'] = index[-1].split('/')[-1]
+            results['worker'] = getfqdn()
+            results['exit_code'] = index[3]
+            results['rtime'] = os.path.getmtime(tspfile).split('.')[0]
+            results['mtime'] = self.get_timestamp(tspfile)
+            results['command'] = index[5:]
+            results['primary_storage'] = self.check_nfs_source(results['title'])
+            results['host_url'] = self.get_target_fqdn(index)
+            tspfile = toremove['tspfile']
+            if os.path.isfile(tspfile):
+                results['changes'] = self.read_file(tspfile)
+                err_file = str('{}.e'.format(tspfile))
+                if os.path.isfile(err_file):
+                    results['errors'] = self.read_file(err_file)
+            self.results.append(results)
+            self.toremove.append(toremove)
+        self.check_if_changes()
+
+    def check_if_changes(self, out='changes', err='errors'):
+        """
+        Checks for content in changes and errors. Populates has_changes / has _errors
+        """
+        for i in self.results:
+            if i[out]: # Check if there are any changes
+                i['has_{}'.format(out)] = True
+            else:
+                i['has_{}'.format(out)] = False
+                del i[out]
+            if i.get(err):
+                if i[err]:
+                    i['has_{}'.format(err)] = True
+                else:
+                    i['has_{}'.format(err)] = False
+                    del i[err]
+
+    def clean_up(self, tspid, filename):
+        """
+        Remove tsp job record and tmp file
+        """
+        self.remove_task(tspid)
+        os.remove(filename)
+
     @staticmethod
     def get_timestamp(filename):
         """
@@ -59,35 +112,6 @@ class Tsp:
             file_out.append(i.strip())
         return file_out
 
-    def get_results(self):
-        """
-        Gather exit code and job file for a tsp job
-        """
-        for i in self.output:
-            results = {}
-            toremove = {}
-            index = self.output[self.output.index(i)]
-            tspfile = index[2]
-            toremove['tspid'] = index[0]
-            toremove['tspfile'] = tspfile
-            results['title'] = index[-1].split('/')[-1]
-            results['worker'] = getfqdn()
-            results['exit_code'] = index[3]
-            results['rtime'] = os.path.getmtime(tspfile)
-            results['mtime'] = self.get_timestamp(tspfile)
-            results['command'] = index[5:]
-            results['primary_storage'] = self.check_nfs_source(results['title'])
-            results['host_url'] = self.get_target_fqdn(index)
-            tspfile = toremove['tspfile']
-            if os.path.isfile(tspfile):
-                results['changes'] = self.read_file(tspfile)
-                err_file = str('{}.e'.format(tspfile))
-                if os.path.isfile(err_file):
-                    results['errors'] = self.read_file(err_file)
-            self.results.append(results)
-            self.toremove.append(toremove)
-        self.check_if_changes()
-
     @staticmethod
     def check_nfs_source(title):
         """
@@ -107,23 +131,6 @@ class Tsp:
             if re.compile('^{}@'.format(user)).findall(i):
                 return i.split('@')[-1].split(':')[0]
 
-    def check_if_changes(self, out='changes', err='errors'):
-        """
-        Checks for content in changes and errors. Populates has_changes / has _errors
-        """
-        for i in self.results:
-            if i[out]: # Check if there are any changes
-                i['has_{}'.format(out)] = True
-            else:
-                i['has_{}'.format(out)] = False
-                del i[out]
-            if i.get(err):
-                if i[err]:
-                    i['has_{}'.format(err)] = True
-                else:
-                    i['has_{}'.format(err)] = False
-                    del i[err]
-
     @staticmethod
     def remove_task(taskid):
         """
@@ -141,13 +148,6 @@ class Tsp:
             es.index(index, doc, content, timestamp)
         else:
             sys.exit(1)
-
-    def clean_up(self, tspid, filename):
-        """
-        Remove tsp job record and tmp file
-        """
-        self.remove_task(tspid)
-        os.remove(filename)
 
     @staticmethod
     def list_files(startpath):
