@@ -64,6 +64,9 @@ class Tsp:
                 err_file = str('{}.e'.format(tspfile))
                 if os.path.isfile(err_file):
                     results['errors'] = self.read_file(err_file)
+            snapdir = str('/srv/backup/{}/.zfs/snapshot'.format(results['title']))
+            if os.path.exists(snapdir):
+                results['snapshots'] = os.listdir(snapdir)
             self.results.append(results)
             self.toremove.append(toremove)
         self.check_if_changes()
