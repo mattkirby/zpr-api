@@ -53,7 +53,7 @@ class Tsp:
             results['title'] = index[-1].split('/')[-1]
             results['worker'] = getfqdn()
             results['exit_code'] = index[3]
-            results['rtime'] = os.path.getmtime(tspfile).split('.')[0]
+            results['rtime'] = str(os.path.getmtime(tspfile)).split('.')[0]
             results['mtime'] = self.get_timestamp(tspfile)
             results['command'] = index[5:]
             results['primary_storage'] = self.check_nfs_source(results['title'])
