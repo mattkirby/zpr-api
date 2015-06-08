@@ -70,7 +70,7 @@ class Tsp:
 
     def check_if_changes(self, out='changes', err='errors'):
         """
-        Checks for content in changes and errors. Populates has_changes / has _errors
+        Checks for content in changes and errors. Populates has_changes / has_errors
         """
         for i in self.results:
             if i[out]: # Check if there are any changes
@@ -84,6 +84,11 @@ class Tsp:
                 else:
                     i['has_{}'.format(err)] = False
                     del i[err]
+            else:
+                if i['exit_code'] == '0':
+                    i['has_{}'.format(err)] = False
+                else:
+                    i['has_{}'.format(err)] = True
 
     def clean_up(self, tspid, filename):
         """
