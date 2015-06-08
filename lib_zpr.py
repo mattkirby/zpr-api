@@ -145,7 +145,7 @@ class Tsp:
         """
         es = Elasticsearch([{'host': url, 'port': 9200}])
         if es.ping():
-            es.index(index, doc, content, timestamp)
+            es.index(index, doc, content, str('timestamp={}'.format(timestamp)))
         else:
             sys.exit(1)
 
