@@ -53,7 +53,7 @@ class Tsp:
             results['title'] = index[-1].split('/')[-1]
             results['worker'] = getfqdn()
             results['exit_code'] = index[3]
-            results['rtime'] = str(os.path.getmtime(tspfile)).split('.')[0]
+            results['timestamp'] = str(os.path.getmtime(tspfile)).split('.')[0]
             results['mtime'] = self.get_timestamp(tspfile)
             results['command'] = index[5:]
             results['primary_storage'] = self.check_nfs_source(results['title'])
@@ -139,13 +139,18 @@ class Tsp:
         call(['tsp', '-r', taskid])
 
     @staticmethod
-    def send_to_elasticsearch(url, index, doc, content, timestamp):
+    def send_to_elasticsearch(
+            index,
+            doc,
+            content,
+            url='elasticsearch.ops.puppetlabs.net'
+        ):
         """
         Send results to elasticsearch in the specified index
         """
         es = Elasticsearch([{'host': url, 'port': 9200}])
         if es.ping():
-            es.index(index, doc, content, str('timestamp={}'.format(timestamp)))
+            es.index(index, doc, content, id=None)
         else:
             sys.exit(1)
 
