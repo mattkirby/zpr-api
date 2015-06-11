@@ -137,7 +137,7 @@ class Tsp:
         """
         Remove a job from the taskspooler list
         """
-        call(['tsp', '-r', taskid])
+        check_output(['tsp', '-r', taskid])
 
     @staticmethod
     def send_to_elasticsearch(
