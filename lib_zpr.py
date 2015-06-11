@@ -11,7 +11,7 @@ import os
 import datetime
 import sys
 
-from subprocess import check_output, call
+from subprocess import check_output
 from elasticsearch import Elasticsearch
 from socket import getfqdn
 
