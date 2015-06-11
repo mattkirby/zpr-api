@@ -93,13 +93,6 @@ class Tsp:
                 else:
                     i['has_{}'.format(err)] = True
 
-    def clean_up(self, tspid, filename):
-        """
-        Remove tsp job record and tmp file
-        """
-        self.remove_task(tspid)
-        os.remove(filename)
-
     @staticmethod
     def get_timestamp(filename):
         """
