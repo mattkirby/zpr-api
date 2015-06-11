@@ -53,8 +53,7 @@ class Tsp:
             results['title'] = index[-1].split('/')[-1]
             results['worker'] = getfqdn()
             results['exit_code'] = index[3]
-            results['timestamp'] = str(os.path.getmtime(tspfile)).split('.')[0]
-            results['mtime'] = self.get_timestamp(tspfile)
+            results['time'] = self.get_timestamp(tspfile)
             results['command'] = index[5:]
             results['primary_storage'] = self.check_nfs_source(results['title'])
             results['host_url'] = self.get_target_fqdn(index)
@@ -76,17 +75,18 @@ class Tsp:
         Checks for content in changes and errors. Populates has_changes / has_errors
         """
         for i in self.results:
-            if i[out]: # Check if there are any changes
-                i['has_{}'.format(out)] = True
-            else:
-                i['has_{}'.format(out)] = False
-                del i[out]
-            if i.get(err):
-                if i[err]:
-                    i['has_{}'.format(err)] = True
+            if not i.get(out) == None: # Check if there are any changes
+                if i[out] == []:
+                    i['has_{}'.format(out)] = False
+                    del i[out]
                 else:
+                    i['has_{}'.format(out)] = True
+            if not i.get(err) == None:
+                if i[err] == []:
                     i['has_{}'.format(err)] = False
                     del i[err]
+                else:
+                    i['has_{}'.format(err)] = True
             else:
                 if i['exit_code'] == '0':
                     i['has_{}'.format(err)] = False
@@ -106,7 +106,7 @@ class Tsp:
         Get a formated timestamp of the last modified time of a file
         """
         file_mtime = os.path.getmtime(filename)
-        time_format = '%Y-%m-%d %H:%M:%S'
+        time_format = '%Y-%m-%dT%H:%M:%S%z'
         mtime = datetime.datetime.fromtimestamp(file_mtime).strftime(time_format)
         return mtime
 
@@ -148,17 +148,18 @@ class Tsp:
 
     @staticmethod
     def send_to_elasticsearch(
-            index,
-            doc,
             content,
-            url='elasticsearch.ops.puppetlabs.net'
+            index='zpr',
+            doc='zpr_job',
+            url='elasticsearch.ops.puppetlabs.net',
+            esid=None
         ):
         """
         Send results to elasticsearch in the specified index
         """
         es = Elasticsearch([{'host': url, 'port': 9200}])
         if es.ping():
-            es.index(index, doc, content, id=None)
+            es.index(index, doc, content, id=esid)
         else:
             sys.exit(1)
 
