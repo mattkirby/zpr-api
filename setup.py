@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='libzpr',
-    version='v0.1.9',
+    version='v0.1.10',
     packages=find_packages(),
     install_requires=[
         'elasticsearch',

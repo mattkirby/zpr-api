@@ -56,6 +56,7 @@ class Tsp:
             results['worker'] = getfqdn()
             results['exit_code'] = index[3]
             results['time'] = self.get_timestamp(tspfile)
+            results['rtime'] = datetime.fromtimestamp(os.path.getmtime(tspfile))
             results['command'] = index[5:]
             results['primary_storage'] = self.check_nfs_source(results['title'])
             results['host_url'] = self.get_target_fqdn(index)
