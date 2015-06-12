@@ -60,8 +60,8 @@ class Tsp:
             results['primary_storage'] = self.check_nfs_source(results['title'])
             results['host_url'] = self.get_target_fqdn(index)
             results['job_time_seconds'] = times[0]
-            results['user_cpu_time'] = times[1]
-            results['system_cpu_time'] = times[2]
+            results['user_cpu'] = times[1]
+            results['system_cpu'] = times[2]
             tspfile = toremove['tspfile']
             if os.path.isfile(tspfile):
                 results['changes'] = self.read_file(tspfile)
