@@ -8,9 +8,10 @@ send it to elasticsearch, or return json.
 
 import re
 import os
-import datetime
 import sys
+import pytz
 
+from datetime import datetime, timedelta
 from subprocess import check_output
 from elasticsearch import Elasticsearch
 from socket import getfqdn
@@ -48,6 +49,7 @@ class Tsp:
             toremove = {}
             index = self.output[self.output.index(i)]
             tspfile = index[2]
+            times = index[4].split('/')
             toremove['tspid'] = index[0]
             toremove['tspfile'] = tspfile
             results['title'] = index[-1].split('/')[-1]
@@ -57,6 +59,9 @@ class Tsp:
             results['command'] = index[5:]
             results['primary_storage'] = self.check_nfs_source(results['title'])
             results['host_url'] = self.get_target_fqdn(index)
+            results['job_time_seconds'] = times[0]
+            results['user_cpu_time'] = times[1]
+            results['system_cpu_time'] = times[2]
             tspfile = toremove['tspfile']
             if os.path.isfile(tspfile):
                 results['changes'] = self.read_file(tspfile)
@@ -66,6 +71,9 @@ class Tsp:
             snapdir = str('/srv/backup/{}/.zfs/snapshot'.format(results['title']))
             if os.path.exists(snapdir):
                 results['snapshots'] = os.listdir(snapdir)
+            for i in index:
+                if re.compile('^/usr/bin').findall(i):
+                    results['job_type'] = i.split('/')[-1]
             self.results.append(results)
             self.toremove.append(toremove)
         self.check_if_changes()
@@ -94,14 +102,26 @@ class Tsp:
                     i['has_{}'.format(err)] = True
 
     @staticmethod
-    def get_timestamp(filename):
+    def is_dst(zonename):
+        """
+        Check if it is daylight savings now
+        """
+        tz = pytz.timezone(zonename)
+        now = pytz.utc.localize(datetime.utcnow())
+        return now.astimezone(tz).dst() != timedelta(0)
+
+    def get_timestamp(self, filename, zonename='America/Los_Angeles'):
         """
         Get a formated timestamp of the last modified time of a file
         """
         file_mtime = os.path.getmtime(filename)
-        time_format = '%Y-%m-%dT%H:%M:%S%z'
-        mtime = datetime.datetime.fromtimestamp(file_mtime).strftime(time_format)
-        return mtime
+        time_format = '%Y-%m-%dT%H:%M:%S'
+        mtime = datetime.fromtimestamp(file_mtime).strftime(time_format)
+        if self.is_dst(zonename):
+            zone = '-0700'
+        else:
+            zone = '-0800'
+        return str('{}{}'.format(mtime, zone))
 
     @staticmethod
     def read_file(filename):

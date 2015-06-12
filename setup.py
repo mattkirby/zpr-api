@@ -3,9 +3,12 @@ from setuptools import setup, find_packages
 
 setup(
     name='libzpr',
-    version='v0.1.0',
+    version='v0.1.8',
     packages=find_packages(),
-    install_requires=['elasticsearch'],
+    install_requires=[
+        'elasticsearch',
+        'pytz'
+    ],
     author='Matt Kirby',
     author_email='kirby@puppetlabs.com',
     description='zpr backup library for interacting with zpr backups',
