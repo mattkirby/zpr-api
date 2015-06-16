@@ -33,12 +33,13 @@ class Tsp:
         """
         tspout = check_output('tsp').split('\n')
         for i in tspout[1:-1]:
-            if i.split()[1] == 'finished':
-                if search:
-                    if re.compile(search).findall(i):
+            if i:
+                if i.split()[1] == 'finished':
+                    if search:
+                        if re.compile(search).findall(i):
+                            self.output.append(i.split())
+                    else:
                         self.output.append(i.split())
-                else:
-                    self.output.append(i.split())
 
     def get_results(self):
         """
@@ -56,7 +57,6 @@ class Tsp:
             results['worker'] = getfqdn()
             results['exit_code'] = index[3]
             results['time'] = self.get_timestamp(tspfile)
-            results['rtime'] = datetime.fromtimestamp(os.path.getmtime(tspfile))
             results['command'] = index[5:]
             results['primary_storage'] = self.check_nfs_source(results['title'])
             results['host_url'] = self.get_target_fqdn(index)
@@ -72,9 +72,13 @@ class Tsp:
             snapdir = str('/srv/backup/{}/.zfs/snapshot'.format(results['title']))
             if os.path.exists(snapdir):
                 results['snapshots'] = os.listdir(snapdir)
-            for i in index:
-                if re.compile('^/usr/bin').findall(i):
-                    results['job_type'] = i.split('/')[-1]
+            if re.compile('/usr/bin/duplicity').findall(str(index)):
+                if re.compile('remove-older-than').findall(str(index)):
+                    results['job_type'] = 'duplicity_cleanup'
+                elif re.compile('full-if-older-than').findall(str(index)):
+                    results['job_type'] = 'duplicity'
+            elif re.compile('/usr/bin/rsync').findall(str(index)):
+                results['job_type'] = 'rsync'
             self.results.append(results)
             self.toremove.append(toremove)
         self.check_if_changes()
