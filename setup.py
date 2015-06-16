@@ -2,13 +2,16 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='lib_zpr',
-    version='v0.1.0',
+    name='libzpr',
+    version='v0.1.17',
     packages=find_packages(),
-    install_requires=['elasticsearch'],
+    install_requires=[
+        'elasticsearch',
+        'pytz'
+    ],
     author='Matt Kirby',
     author_email='kirby@puppetlabs.com',
-    description='zpr backup library for interacting with zpr backups',
+    description='a library for interacting with zpr backups',
     license='Apache License 2.0',
     url='https://github.com/mattkirby/zpr-api'
 )
