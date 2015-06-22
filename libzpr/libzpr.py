@@ -57,9 +57,7 @@ class Tsp:
             results['worker'] = getfqdn()
             results['exit_code'] = index[3]
             results['time'] = self.get_timestamp(tspfile)
-            results['command'] = index[5:]
             results['primary_storage'] = self.check_nfs_source(results['title'])
-            results['host_url'] = self.get_target_fqdn(index)
             results['job_time_seconds'] = times[0]
             results['user_cpu'] = times[1]
             results['system_cpu'] = times[2]
@@ -72,16 +70,25 @@ class Tsp:
             snapdir = str('/srv/backup/{}/.zfs/snapshot'.format(results['title']))
             if os.path.exists(snapdir):
                 results['snapshots'] = os.listdir(snapdir)
-            if re.compile('/usr/bin/duplicity').findall(str(index)):
-                if re.compile('remove-older-than').findall(str(index)):
-                    results['job_type'] = 'duplicity_cleanup'
-                elif re.compile('full-if-older-than').findall(str(index)):
-                    results['job_type'] = 'duplicity'
-            elif re.compile('/usr/bin/rsync').findall(str(index)):
-                results['job_type'] = 'rsync'
+            jobfile = self.read_file('{}/.ssh/permitted_commands/{}'.format(os.path.expanduser('~'), results['title']))
+            results['job_type'] = self.get_job_type(jobfile)
+            results['host_url'] = self.get_target_fqdn(jobfile)
             self.results.append(results)
             self.toremove.append(toremove)
         self.check_if_changes()
+
+    @staticmethod
+    def get_job_type(title):
+        """
+        Determine the job type based on command content
+        """
+        if re.compile('/usr/bin/duplicity').findall(str(title)):
+            if re.compile('remove-older-than').findall(str(title)):
+                return 'duplicity_cleanup'
+            elif re.compile('full-if-older-than').findall(str(title)):
+                return 'duplicity'
+        elif re.compile('/usr/bin/rsync').findall(str(title)):
+            return 'rsync'
 
     def check_if_changes(self, out='changes', err='errors'):
         """
