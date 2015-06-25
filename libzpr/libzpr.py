@@ -27,14 +27,14 @@ class Tsp:
         self.results = []
         self.toremove = []
 
-    def get_output(self, search=None):
+    def get_output(self, search=None, status='finished'):
         """
         Get output from taskspooler about finished jobs
         """
         tspout = check_output('tsp').split('\n')
         for i in tspout[1:-1]:
             if i:
-                if i.split()[1] == 'finished':
+                if i.split()[1] == status:
                     if search:
                         if re.compile(search).findall(i):
                             self.output.append(i.split())
