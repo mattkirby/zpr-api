@@ -49,10 +49,10 @@ class Tsp:
             results = {}
             toremove = {}
             index = self.output[self.output.index(i)]
-            tspfile = index[2]
+            if re.compile('/.*').findall(index[2]):
+                tspfile = index[2]
             times = index[4].split('/')
             toremove['tspid'] = index[0]
-            toremove['tspfile'] = tspfile
             results['title'] = index[-1].split('/')[-1]
             results['worker'] = getfqdn()
             results['exit_code'] = index[3]
@@ -61,12 +61,14 @@ class Tsp:
             results['job_time_seconds'] = times[0]
             results['user_cpu'] = times[1]
             results['system_cpu'] = times[2]
-            tspfile = toremove['tspfile']
-            if os.path.isfile(tspfile):
-                results['changes'] = self.read_file(tspfile)
-                err_file = str('{}.e'.format(tspfile))
-                if os.path.isfile(err_file):
-                    results['errors'] = self.read_file(err_file)
+            if tspfile:
+                toremove['tspfile'] = tspfile
+                tspfile = toremove['tspfile']
+                if os.path.isfile(tspfile):
+                    results['changes'] = self.read_file(tspfile)
+                    err_file = str('{}.e'.format(tspfile))
+                    if os.path.isfile(err_file):
+                        results['errors'] = self.read_file(err_file)
             snapdir = str('/srv/backup/{}/.zfs/snapshot'.format(results['title']))
             if os.path.exists(snapdir):
                 results['snapshots'] = os.listdir(snapdir)
