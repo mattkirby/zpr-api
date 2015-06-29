@@ -8,6 +8,7 @@ send it to elasticsearch, or return json.
 
 import re
 import os
+import shutil
 import sys
 import pytz
 
@@ -54,26 +55,35 @@ class Tsp:
             times = index[4].split('/')
             toremove['tspid'] = index[0]
             results['title'] = index[-1].split('/')[-1]
+            job_filename = '{}/.ssh/permitted_commands/{}'.format(os.path.expanduser('~'), results['title'])
+            if os.path.exists(job_filename):
+                jobfile = self.read_file('{}/.ssh/permitted_commands/{}'.format(os.path.expanduser('~'), results['title']))
+                snapdir = str('/srv/backup/{}/.zfs/snapshot'.format(results['title']))
+                results['primary_storage'] = self.check_nfs_source(results['title'])
+                if os.path.exists(snapdir):
+                    results['snapshots'] = os.listdir(snapdir)
+            else:
+                jobfile = index
+            results['job_type'] = self.get_job_type(jobfile)
             results['worker'] = getfqdn()
             results['exit_code'] = index[3]
             results['time'] = self.get_timestamp(tspfile)
-            results['primary_storage'] = self.check_nfs_source(results['title'])
             results['job_time_seconds'] = times[0]
             results['user_cpu'] = times[1]
             results['system_cpu'] = times[2]
+            nfsdir = '/srv/backup/{}_job_results'.format(results['worker'])
             if tspfile:
                 toremove['tspfile'] = tspfile
-                tspfile = toremove['tspfile']
                 if os.path.isfile(tspfile):
-                    results['changes'] = self.read_file(tspfile)
-                    err_file = str('{}.e'.format(tspfile))
+                    results['changes'] = self.return_file_contents(tspfile)
+                    if os.path.getsize(tspfile) > 10:
+                        results['truncate_output'] = True
+                        self.copy_to_nfs(nfsdir, tspfile, '{}/{}_{}'.format(nfsdir, results['title'], results['time']))
+                    err_file = '{}.e'.format(tspfile)
                     if os.path.isfile(err_file):
-                        results['errors'] = self.read_file(err_file)
-            snapdir = str('/srv/backup/{}/.zfs/snapshot'.format(results['title']))
-            if os.path.exists(snapdir):
-                results['snapshots'] = os.listdir(snapdir)
-            jobfile = self.read_file('{}/.ssh/permitted_commands/{}'.format(os.path.expanduser('~'), results['title']))
-            results['job_type'] = self.get_job_type(jobfile)
+                        results['errors'] = self.return_file_contents(err_file)
+                        if os.path.getsize(err_file) > 10:
+                            self.copy_to_nfs(nfsdir, tspfile, '{}/{}_{}.e'.format(nfsdir, results['title'], results['time']))
             results['host_url'] = self.get_target_fqdn(jobfile)
             self.results.append(results)
             self.toremove.append(toremove)
@@ -147,6 +157,42 @@ class Tsp:
             file_out.append(i.strip())
         return file_out
 
+    def read_and_truncate(self, filename, lines):
+        """
+        Get the number of lines requested from the end of a file
+        """
+        trunc_out = []
+        file_out = self.read_file(filename)
+        count_lines = 0
+        for i in reversed(file_out):
+            count_lines = count_lines + 1
+            if count_lines > lines:
+                break
+            trunc_out.append(i)
+        trunc_out.sort(reverse=True)
+        return trunc_out
+
+    def return_file_contents(self, filename, lines=1000, maxsize=500000):
+        """
+        Return requested file contents. If larger than .5MB truncate the file
+        """
+        if os.path.getsize(filename) > maxsize:
+            file_out = self.read_and_truncate(filename, lines)
+        else:
+            file_out = self.read_file(filename)
+        return file_out
+
+    @staticmethod
+    def copy_to_nfs(nfs, srcfile, destfile):
+        """
+        Check if destination is nfs, then copy file
+        """
+        if os.path.ismount(nfs):
+            shutil.copyfile(srcfile, destfile)
+        else:
+            print '{} is not a nfs mount'.format(nfs)
+            sys.exit(1)
+
     @staticmethod
     def check_nfs_source(title):
         """
@@ -188,6 +234,7 @@ class Tsp:
         if es.ping():
             es.index(index, doc, content, id=esid)
         else:
+            print 'Cannot reach elasticsearch at {}'.format(url)
             sys.exit(1)
 
     @staticmethod
