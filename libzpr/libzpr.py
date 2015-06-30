@@ -54,11 +54,11 @@ class Tsp:
                 tspfile = index[2]
             times = index[4].split('/')
             toremove['tspid'] = index[0]
-            results['title'] = index[-1].split('/')[-1]
+            results['title'] = self.find_title(index)
             job_filename = '{}/.ssh/permitted_commands/{}'.format(os.path.expanduser('~'), results['title'])
             if os.path.exists(job_filename):
-                jobfile = self.read_file('{}/.ssh/permitted_commands/{}'.format(os.path.expanduser('~'), results['title']))
-                snapdir = str('/srv/backup/{}/.zfs/snapshot'.format(results['title']))
+                jobfile = self.read_file(job_filename)
+                snapdir = '/srv/backup/{}/.zfs/snapshot'.format(results['title'])
                 results['primary_storage'] = self.check_nfs_source(results['title'])
                 if os.path.exists(snapdir):
                     results['snapshots'] = os.listdir(snapdir)
@@ -68,6 +68,8 @@ class Tsp:
             results['worker'] = getfqdn()
             results['exit_code'] = index[3]
             results['time'] = self.get_timestamp(tspfile)
+            if 'time=' in index[-1]:
+                results['time_queued'] = self.get_timestamp(timestamp=float(index[-1].split('=')[-1]))
             results['job_time_seconds'] = times[0]
             results['user_cpu'] = times[1]
             results['system_cpu'] = times[2]
@@ -76,13 +78,13 @@ class Tsp:
                 toremove['tspfile'] = tspfile
                 if os.path.isfile(tspfile):
                     results['changes'] = self.return_file_contents(tspfile)
-                    if os.path.getsize(tspfile) > 10:
+                    if os.path.getsize(tspfile) > 500000:
                         results['truncate_output'] = True
                         self.copy_to_nfs(nfsdir, tspfile, '{}/{}_{}'.format(nfsdir, results['title'], results['time']))
                     err_file = '{}.e'.format(tspfile)
                     if os.path.isfile(err_file):
                         results['errors'] = self.return_file_contents(err_file)
-                        if os.path.getsize(err_file) > 10:
+                        if os.path.getsize(err_file) > 500000:
                             self.copy_to_nfs(nfsdir, tspfile, '{}/{}_{}.e'.format(nfsdir, results['title'], results['time']))
             results['host_url'] = self.get_target_fqdn(jobfile)
             self.results.append(results)
@@ -94,12 +96,12 @@ class Tsp:
         """
         Determine the job type based on command content
         """
-        if re.compile('/usr/bin/duplicity').findall(str(title)):
-            if re.compile('remove-older-than').findall(str(title)):
+        if '/usr/bin/duplicity' in str(title):
+            if 'remove-older-than' in str(title):
                 return 'duplicity_cleanup'
-            elif re.compile('full-if-older-than').findall(str(title)):
+            elif 'full-if-older-than' in str(title):
                 return 'duplicity'
-        elif re.compile('/usr/bin/rsync').findall(str(title)):
+        elif '/usr/bin/rsync' in str(title):
             return 'rsync'
 
     def check_if_changes(self, out='changes', err='errors'):
@@ -134,13 +136,16 @@ class Tsp:
         now = pytz.utc.localize(datetime.utcnow())
         return now.astimezone(tz).dst() != timedelta(0)
 
-    def get_timestamp(self, filename, zonename='America/Los_Angeles'):
+    def get_timestamp(self, filename=None, timestamp=None, zonename='America/Los_Angeles'):
         """
         Get a formated timestamp of the last modified time of a file
         """
-        file_mtime = os.path.getmtime(filename)
+        if filename:
+            source_time = os.path.getmtime(filename)
+        if timestamp:
+            source_time = timestamp
         time_format = '%Y-%m-%dT%H:%M:%S'
-        mtime = datetime.fromtimestamp(file_mtime).strftime(time_format)
+        mtime = datetime.fromtimestamp(source_time).strftime(time_format)
         if self.is_dst(zonename):
             zone = '-0700'
         else:
@@ -251,3 +256,12 @@ class Tsp:
             root_list['files'] = file_list
             tree.append(root_list)
         return tree
+
+    @staticmethod
+    def find_title(source_list):
+        """
+        Find the title of a job
+        """
+        for i in reversed(source_list):
+            if not re.compile(';|time=').findall(i):
+                return i.split('/')[-1]
