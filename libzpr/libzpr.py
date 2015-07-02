@@ -55,7 +55,7 @@ class Tsp:
             times = index[4].split('/')
             toremove['tspid'] = index[0]
             results['title'] = self.find_title(index)
-            job_filename = '{}/.ssh/permitted_commands/{}'.format(os.path.expanduser('~'), results['title'])
+            job_filename = '{}/.ssh/permitted_commands/{}'.format(os.path.expanduser('~zpr_proxy'), results['title'])
             if os.path.exists(job_filename):
                 jobfile = self.read_file(job_filename)
                 snapdir = '/srv/backup/{}/.zfs/snapshot'.format(results['title'])
