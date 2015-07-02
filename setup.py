@@ -3,11 +3,12 @@ from setuptools import setup, find_packages
 
 setup(
     name='libzpr',
-    version='v0.1.19',
+    version='v0.1.20',
     packages=find_packages(),
     install_requires=[
         'elasticsearch',
-        'pytz'
+        'pytz',
+        'tendo'
     ],
     author='Matt Kirby',
     author_email='kirby@puppetlabs.com',
