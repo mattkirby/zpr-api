@@ -86,7 +86,10 @@ class Tsp:
                         results['errors'] = self.return_file_contents(err_file)
                         if os.path.getsize(err_file) > 500000:
                             self.copy_to_nfs(nfsdir, tspfile, '{}/{}_{}.e'.format(nfsdir, results['title'], results['time']))
-            results['host_url'] = self.get_target_fqdn(jobfile)
+            if len(jobfile) > 1:
+                results['host_url'] = self.get_target_fqdn(jobfile)
+            else:
+                results['host_url'] = self.get_target_fqdn(jobfile[0].split())
             self.results.append(results)
             self.toremove.append(toremove)
         self.check_if_changes()
