@@ -86,10 +86,7 @@ class Tsp:
                         results['errors'] = self.return_file_contents(err_file)
                         if os.path.getsize(err_file) > 500000:
                             self.copy_to_nfs(nfsdir, tspfile, '{}/{}_{}.e'.format(nfsdir, results['title'], results['time']))
-            if len(jobfile) > 1:
-                results['host_url'] = self.get_target_fqdn(jobfile)
-            else:
-                results['host_url'] = self.get_target_fqdn(jobfile[0].split())
+            results['host_url'] = self.get_target_fqdn(jobfile)
             self.results.append(results)
             self.toremove.append(toremove)
         self.check_if_changes()
@@ -216,7 +213,11 @@ class Tsp:
         """
         Get the fqdn of the job target
         """
-        for i in source:
+        if len(source) > 1:
+            look = source
+        else:
+            look = source[0].split()
+        for i in look:
             if re.compile('^{}@'.format(user)).findall(i):
                 return i.split('@')[-1].split(':')[0]
 
