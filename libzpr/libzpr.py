@@ -68,8 +68,9 @@ class Tsp:
             results['worker'] = getfqdn()
             results['exit_code'] = index[3]
             results['time'] = self.get_timestamp(tspfile)
-            if 'time=' in index[-1]:
-                results['time_queued'] = self.get_timestamp(timestamp=float(index[-1].split('=')[-1]))
+            line_timestamp = re.compile(r'time=\d+').findall(str(index))
+            if line_timestamp:
+                results['time_queued'] = self.get_timestamp(timestamp=float(line_timestamp[0]))
             results['job_time_seconds'] = times[0]
             results['user_cpu'] = times[1]
             results['system_cpu'] = times[2]
