@@ -32,7 +32,7 @@ class Tsp:
         """
         Get output from taskspooler about finished jobs
         """
-        tspout = check_output('tsp').split('\n')
+        tspout = check_output('/usr/bin/tsp').split('\n')
         for i in tspout[1:-1]:
             if i:
                 if i.split()[1] == status:
