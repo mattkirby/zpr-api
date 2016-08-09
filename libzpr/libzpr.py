@@ -97,11 +97,8 @@ class Tsp:
         """
         Determine the job type based on command content
         """
-        if '/usr/bin/duplicity' in str(title):
-            if 'remove-older-than' in str(title):
-                return 'duplicity_cleanup'
-            elif 'full-if-older-than' in str(title):
-                return 'duplicity'
+        if 'run_duplicity' in str(title):
+            return 'duplicity'
         elif '/usr/bin/rsync' in str(title):
             return 'rsync'
 
@@ -267,6 +264,8 @@ class Tsp:
         """
         Find the title of a job
         """
+        if 'run_duplicity' in source_list[8]:
+            return source_list[9].split('/')[-1]
         for i in reversed(source_list):
             if not re.compile(';|time=').findall(i):
                 return i.split('/')[-1]
