@@ -68,9 +68,9 @@ class Tsp:
             results['worker'] = getfqdn()
             results['exit_code'] = index[3]
             results['time'] = self.get_timestamp(tspfile)
-            line_timestamp = re.compile(r'time=\d+').findall(str(index))
+            line_timestamp = self.get_time_from_str(index)
             if line_timestamp:
-                results['time_queued'] = self.get_timestamp(timestamp=float(line_timestamp[0]))
+                results['time_queued'] = self.get_timestamp(timestamp=line_timestamp)
             results['job_time_seconds'] = times[0]
             results['user_cpu'] = times[1]
             results['system_cpu'] = times[2]
@@ -133,6 +133,20 @@ class Tsp:
         tz = pytz.timezone(zonename)
         now = pytz.utc.localize(datetime.utcnow())
         return now.astimezone(tz).dst() != timedelta(0)
+
+    @staticmethod
+    def get_time_from_str(index):
+        """
+        Given a list return the timestamp
+        """
+        try:
+            assert not isinstance(index, basestring)
+            for entry in index:
+                if 'time=' in entry:
+                    timestamp = int(entry.split('=')[-1].rstrip(';'))
+                    return timestamp
+        except AssertionError:
+            return False
 
     def get_timestamp(self, filename=None, timestamp=None, zonename='America/Los_Angeles'):
         """
