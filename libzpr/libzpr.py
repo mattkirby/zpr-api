@@ -11,6 +11,8 @@ import os
 import shutil
 import sys
 import pytz
+import subprocess
+import atexit
 
 from datetime import datetime, timedelta
 from subprocess import check_output
@@ -200,15 +202,31 @@ class Tsp:
         return file_out
 
     @staticmethod
-    def copy_to_nfs(nfs, srcfile, destfile):
+    def run_cmd(cmd):
+        """
+        Run a command and check return code is 0
+        """
+        check = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        streamdata = check.communicate()[0]
+        exitcode = check.returncode
+        if exitcode == 0:
+            return True
+        else:
+            return False
+
+    def copy_to_nfs(self, nfs, srcfile, destfile):
         """
         Check if destination is nfs, then copy file
         """
         if os.path.ismount(nfs):
             shutil.copyfile(srcfile, destfile)
+            self.run_cmd(['sudo', 'umount', nfs])
         else:
-            print '{} is not a nfs mount'.format(nfs)
-            sys.exit(1)
+            if self.run_cmd(['sudo', 'mount', nfs]):
+                shutil.copyfile(srcfile, destfile)
+                self.run_cmd(['sudo', 'umount', nfs])
+            else:
+                sys.exit(1)
 
     @staticmethod
     def check_nfs_source(title):
